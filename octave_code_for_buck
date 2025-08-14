@@ -1,0 +1,24 @@
+VS = 23; # V  DC Kaynak gerilimi Volt ile ifade ediliyor.
+D = 0.615; # s  Görev süresi (duty cycle) saniye ile ifade ediliyor.
+L = 226d-6;# H   Bobin Henry ile ifade ediliyor.
+C = 53d-6;#  F  Kapasitör değeri Farad ile ifade ediliyor.
+f = 10000; # Hz  Anahtarlama frekansı Hz ile ifade ediliyor.
+T = 1/f; # s Bir dalganın tamamlama süresi saniye ile ifade ediliyor. Periyot.
+R = 7; # Ohm Çıkış direnç değeri ohm ile ifade ediliyor.
+VO = VS*D; # Çıkış gerilim ifadesi
+gerilim= VS - VO; # Bobinin üzerine düşen gerilim
+
+F1 = @(zaman1,akim1)(gerilim/L); #Anahtar kapalı durumununda bobin akımı- zaman fonksiyonu
+F2 = @(zaman2,akim2)(-VO/L); # Anahtar açık durumunda bobin akımı- zaman fonksiyonu
+dil = (VS-VO)*(1/L)*D*T; # Akımın değişimi
+akim1min = (VO/R) - (0.5*dil); # A Akımın minimum değeri amper ile ifade ediliyor. ( Akımın başlangıç değeridir )
+[zaman1,akim1] = ode45(F1,[0 D*T],akim1min); # Anahtar kapalı olduğu durumda, zaman ve akim değerleri
+akim1max = akim1(length(akim1)); # A Akımın makismum değeri amper ile ifade ediliyor. ( Anahtarın pozisyon değiştirdiği an )
+[zaman2,akim2] = ode45(F2,[D*T T],akim1max); # Anahtar açık olduğu durumda, zaman ve akım değerleri
+plot(zaman1,akim1,zaman2,akim2); # Anahtar kapalı ve açık durumunda akım-zaman grafiği
+xlabel ("Zaman t(s)");
+ylabel ("Akım I(A)");
+title ("Buck devresi için akım-zaman değişiminde mavi eğri anahtar kapalı durumu, turuncu eğri anahtar açık durumunda değişim");
+
+#BUCK devresinin çıkış akımının değişim çalışması
+
